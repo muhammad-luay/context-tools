@@ -75,10 +75,3 @@ Pair this tool with a ChatGPT prompt like:
 
 ```
 
----
-
-Let me know if you want me to:
-- Add a GitHub Actions badge
-- Generate a zipped example output
-- Turn this into a CLI tool (`argparse`, `click`, etc.)
-```
