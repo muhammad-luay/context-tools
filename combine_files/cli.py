@@ -90,6 +90,7 @@ def _iter_paths(
     skip_exts: Set[str],
     gitignore_spec=None,
     follow_symlinks: bool = False,
+    skip_dot_dirs: bool = True,
 ) -> Iterable[Path]:
     """Yield candidate file paths under *roots* applying all skip rules."""
     stack = list(roots)
@@ -104,6 +105,7 @@ def _iter_paths(
                     if entry.is_dir(follow_symlinks=follow_symlinks):
                         if (
                             name in skip_dirs
+                            or (skip_dot_dirs and name.startswith("."))
                             or (gitignore_spec and gitignore_spec.match_file(path.relative_to(roots[0])))
                         ):
                             continue
@@ -194,6 +196,11 @@ def main(
         False, help="Show a progress bar (requires tqdm). Ignored for stdout."
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Increase log verbosity."),
+    skip_dot_dirs: bool = typer.Option(
+        True,
+        "--skip-dot-dirs/--include-dot-dirs",
+        help="Skip directories whose names start with '.' (dot).",
+    ),
 ):
     """
     Concatenate text files under *SRC_DIR* into one stream.
@@ -237,6 +244,7 @@ def main(
             skip_exts_set,
             gitignore_spec,
             follow_symlinks,
+            skip_dot_dirs
         )
     )
     if not paths:
