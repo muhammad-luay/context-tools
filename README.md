@@ -10,7 +10,8 @@
 - **Cross-Platform**: Uses `pathlib.Path` for seamless operation on Windows, macOS, and Linux.
 - **Highly Configurable**: Control everything with command-line flags—no hard-coding required. Specify what to include, what to skip, file encodings, output location, and more.
 - **`.gitignore` Aware**: Automatically respects your project's `.gitignore` rules (requires `pathspec`).
-- **Smart File Handling**: Skips binary files based on MIME types to prevent garbage output.
+- **Smart File Handling**: Skips binary files based on MIME types to prevent garbage output **and, by default, any
+  directory whose name starts with `.`** (override with `--include-dot-dirs`).
 - **Performance-Oriented**: Features optional multithreaded file reading and a `tqdm` progress bar for large projects.
 - **Flexible Output**: Stream combined content to standard output (`stdout`) or save it directly to a file.
 
@@ -56,6 +57,7 @@ combine-files [ROOT_DIRS]... [OPTIONS]
 | `--jobs, -j` | | Number of parallel threads for reading files. | `2` |
 | `--progress` | | Show a progress bar during file processing (requires `tqdm`). | |
 | `--follow-symlinks` | | Follow symbolic links. | `False` |
+| `--skip-dot-dirs / --include-dot-dirs` | | Skip directories that start with `.` (dot). Use the second form to include them. | `--skip-dot-dirs` |
 | `--log-level` | | Set the logging level (e.g., `DEBUG`, `INFO`). | `WARNING` |
 | `--version` | | Show the version and exit. | |
 | `--help` | | Show the help message and exit. | |
@@ -188,6 +190,10 @@ combine-files . -j 8 --progress
 ## Contributing
 
 Contributions are welcome! If you have ideas for new features, bug fixes, or improvements, feel free to open an issue or submit a pull request on the project's repository.
+
+## Project Links
+- **Source & Issue Tracker**: <https://github.com/muhammad-luay/context-tools>
+- **PyPI**: <https://pypi.org/project/project-combiner/>
 
 ## License
 
