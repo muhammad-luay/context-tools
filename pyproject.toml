@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "project-combiner"
-version = "0.1.1"
+version = "0.1.2"
 description = "Concatenate text-like files in a directory tree with Typer-powered CLI."
 readme = "README.md"
 requires-python = ">=3.8"
