@@ -15,6 +15,8 @@
 - **Performance-Oriented**: Features optional multithreaded file reading and a `tqdm` progress bar for large projects.
 - **Flexible Output**: Stream combined content to standard output (`stdout`) or save it directly to a file.
 
+* **Clipboard‑Ready**: Use `-c/--clipboard` to copy the combined output straight to your system clipboard (requires `pyperclip`).
+
 ## Installation
 
 You can install `project-combiner` directly from PyPI.
@@ -26,6 +28,7 @@ For all features, including `.gitignore` support and a progress bar, install wit
 ```bash
 pip install project-combiner[all]
 ```
+
 This installs `typer`, `pathspec`, and `tqdm`.
 
 #### Minimal Installation
@@ -35,6 +38,14 @@ For the core functionality without optional dependencies:
 ```bash
 pip install project-combiner
 ```
+
+> ℹ️ Add clipboard support later with:
+>
+> ```bash
+> pip install pyperclip
+> ```
+
+---
 
 ## Usage
 
@@ -46,21 +57,21 @@ combine-files [ROOT_DIRS]... [OPTIONS]
 
 ### Command-Line Options
 
-| Option | Alias | Description | Default |
-|---|---|---|---|
-| `--output-file, -o` | | Path to the output file. Use `-` for stdout. | `-` (stdout) |
-| `--skip-dirs` | | Space-separated list of directory names to skip. | `.git` `.hg` `__pycache__` |
-| `--skip-files` | | Space-separated list of file names to skip. | |
-| `--skip-exts` | | Space-separated list of file extensions to skip. | |
-| `--preview-exts`| | Space-separated list of extensions to preview instead of including their full content. | |
-| `--encoding` | | The encoding to use for reading files. | `utf-8` |
-| `--jobs, -j` | | Number of parallel threads for reading files. | `2` |
-| `--progress` | | Show a progress bar during file processing (requires `tqdm`). | |
-| `--follow-symlinks` | | Follow symbolic links. | `False` |
-| `--skip-dot-dirs / --include-dot-dirs` | | Skip directories that start with `.` (dot). Use the second form to include them. | `--skip-dot-dirs` |
-| `--log-level` | | Set the logging level (e.g., `DEBUG`, `INFO`). | `WARNING` |
-| `--version` | | Show the version and exit. | |
-| `--help` | | Show the help message and exit. | |
+| Option                                 | Alias | Description                                                                            | Default                    |
+| -------------------------------------- | ----- | -------------------------------------------------------------------------------------- | -------------------------- |
+| `--output-file, -o`                    |       | Path to the output file. Use `-` for stdout.                                           | `-` (stdout)               |
+| `--skip-dirs`                          |       | Space-separated list of directory names to skip.                                       | `.git` `.hg` `__pycache__` |
+| `--skip-files`                         |       | Space-separated list of file names to skip.                                            |                            |
+| `--skip-exts`                          |       | Space-separated list of file extensions to skip.                                       |                            |
+| `--preview-exts`                       |       | Space-separated list of extensions to preview instead of including their full content. |                            |
+| `--encoding`                           |       | The encoding to use for reading files.                                                 | `utf-8`                    |
+| `--jobs, -j`                           |       | Number of parallel threads for reading files.                                          | `2`                        |
+| `--progress`                           |       | Show a progress bar during file processing (requires `tqdm`).                          |                            |
+| `--follow-symlinks`                    |       | Follow symbolic links.                                                                 | `False`                    |
+| `--skip-dot-dirs / --include-dot-dirs` |       | Skip directories that start with `.` (dot). Use the second form to include them.       | `--skip-dot-dirs`          |
+| `--log-level`                          |       | Set the logging level (e.g., `DEBUG`, `INFO`).                                         | `WARNING`                  |
+| `--version`                            |       | Show the version and exit.                                                             |                            |
+| `--help`                               |       | Show the help message and exit.                                                        |                            |
 
 ---
 
@@ -141,10 +152,13 @@ To isolate just the Python source code from the `src` directory:
 ```bash
 combine-files my_project/src --skip-exts .csv .txt .md
 ```
+
 Or, more simply, if you only want to process the `src` folder:
+
 ```bash
 combine-files my_project/src
 ```
+
 Assuming `data` contains non-python files, they will be skipped if they are binary or if you explicitly skip their extensions.
 
 #### 5. Preview Large Data or Markdown Files
@@ -156,9 +170,9 @@ combine-files . --preview-exts .md .csv -j 4 --progress
 ```
 
 - **What it does**:
-    - It processes the entire project (`.`).
-    - For any file ending in `.md` or `.csv`, it will only include a header indicating the file's path and a "preview" message, rather than its full content.
-    - It uses 4 threads (`-j 4`) for faster reading and shows a progress bar (`--progress`).
+  - It processes the entire project (`.`).
+  - For any file ending in `.md` or `.csv`, it will only include a header indicating the file's path and a "preview" message, rather than its full content.
+  - It uses 4 threads (`-j 4`) for faster reading and shows a progress bar (`--progress`).
 
 The output for a previewed file like `docs/guide.md` would look like this:
 
@@ -167,6 +181,16 @@ The output for a previewed file like `docs/guide.md` would look like this:
 File: docs/guide.md (preview)
 ---
 ```
+
+### 6. Copy Output Directly to Clipboard
+
+```bash
+combine-files . -c
+```
+
+No file writing or terminal spam—your combined content is ready to paste.
+
+---
 
 ## Advanced Usage
 
@@ -192,6 +216,7 @@ combine-files . -j 8 --progress
 Contributions are welcome! If you have ideas for new features, bug fixes, or improvements, feel free to open an issue or submit a pull request on the project's repository.
 
 ## Project Links
+
 - **Source & Issue Tracker**: <https://github.com/muhammad-luay/context-tools>
 - **PyPI**: <https://pypi.org/project/project-combiner/>
 

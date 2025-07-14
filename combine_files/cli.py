@@ -56,6 +56,11 @@ try:
     from tqdm import tqdm  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
     tqdm = None  # noqa: N816
+
+try:
+    import pyperclip      # pip install pyperclip
+except ModuleNotFoundError:
+    pyperclip = None
 # ────────────────────────────────────────────────────────────────────────────
 
 app = typer.Typer(add_completion=False, help="See `--help` for options.")
@@ -195,7 +200,14 @@ def main(
     progress: bool = typer.Option(
         False, help="Show a progress bar (requires tqdm). Ignored for stdout."
     ),
+    # verbose: bool = typer.Option(False, "--verbose", "-v", help="Increase log verbosity."),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Increase log verbosity."),
+    clipboard: bool = typer.Option(
+        False,
+        "--clipboard",
+        "-c",
+        help="Copy combined output to the system clipboard.",
+    ),
     skip_dot_dirs: bool = typer.Option(
         True,
         "--skip-dot-dirs/--include-dot-dirs",
@@ -252,7 +264,13 @@ def main(
         raise typer.Exit()
 
     # Pick output handle
-    out_fh = sys.stdout if output in (None, Path("-")) else output.expanduser().open("w", encoding="utf-8")
+    # out_fh = sys.stdout if output in (None, Path("-")) else output.expanduser().open("w", encoding="utf-8")
+    buf: list[str] = []            # collect here if --clipboard
+    out_fh = (
+        sys.stdout
+        if (output in (None, Path("-")) and not clipboard)
+        else (sys.stdout if clipboard and output in (None, Path("-")) else output.expanduser().open("w", encoding="utf-8"))
+    )
 
     def producer(p: Path) -> str:
         if _is_binary(p):
@@ -274,12 +292,21 @@ def main(
                     if progress and tqdm
                     else as_completed(fut_to_path)
                 )
+        #         for future in iterable:
+        #             out_fh.write(future.result())
+        # else:
+        #     iterable = tqdm(paths) if progress and tqdm else paths
+        #     for p in iterable:
+        #         out_fh.write(producer(p))
                 for future in iterable:
-                    out_fh.write(future.result())
+                    chunk = future.result()
+                    (buf.append if clipboard else out_fh.write)(chunk)
         else:
             iterable = tqdm(paths) if progress and tqdm else paths
             for p in iterable:
-                out_fh.write(producer(p))
+                chunk = producer(p)
+                (buf.append if clipboard else out_fh.write)(chunk)
+
     except KeyboardInterrupt:  # pragma: no cover
         typer.secho("\nInterrupted by user", fg=typer.colors.RED, err=True)
         raise typer.Exit(code=130)
@@ -287,6 +314,13 @@ def main(
         if out_fh is not sys.stdout:
             out_fh.close()
             logging.info("Wrote %s", output or "<stdout>")
+    if clipboard:
+        if not pyperclip:
+            typer.secho("Install pyperclip for --clipboard (`pip install pyperclip`).", fg=typer.colors.RED)
+            raise typer.Exit(1)
+        content = "".join(buf)
+        pyperclip.copy(content)
+        typer.secho(f"✔ Copied {len(content):,} characters to clipboard.", fg=typer.colors.GREEN)
 
     return 0
 
